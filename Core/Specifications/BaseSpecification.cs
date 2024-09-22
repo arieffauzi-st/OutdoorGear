@@ -21,6 +21,10 @@ public class BaseSpecification<T>(Expression<Func<T, bool>>? criteria) : ISpecif
 
     public bool IsPagingEnabled { get; private set; }
 
+    public List<Expression<Func<T, object>>> Includes {get; } = [];
+
+    public List<string> IncludeStrings {get; } = [];
+
     public IQueryable<T> ApplyCriteria(IQueryable<T> query)
     {
         if (Criteria != null)
@@ -29,6 +33,16 @@ public class BaseSpecification<T>(Expression<Func<T, bool>>? criteria) : ISpecif
         }
 
         return query;
+    }
+
+    protected void AddInclude(Expression<Func<T, object>> includeExpressions)
+    {
+        Includes.Add(includeExpressions);
+    }
+
+    protected void AddInclude(string includeString)
+    {
+        IncludeStrings.Add(includeString); // For ThenInclude
     }
 
     protected void AddOrderBy(Expression<Func<T, object>> orderByExpression)
@@ -54,14 +68,14 @@ public class BaseSpecification<T>(Expression<Func<T, bool>>? criteria) : ISpecif
     }
 }
 
-    public class BaseSpecification<T, TResult>(Expression<Func<T, bool>> criteria)
-        : BaseSpecification<T>(criteria), ISpecification<T, TResult>
-    {
-        protected BaseSpecification() : this(null!) { }
-        public Expression<Func<T, TResult>>? Select { get; private set; }
+public class BaseSpecification<T, TResult>(Expression<Func<T, bool>> criteria)
+    : BaseSpecification<T>(criteria), ISpecification<T, TResult>
+{
+    protected BaseSpecification() : this(null!) { }
+    public Expression<Func<T, TResult>>? Select { get; private set; }
 
-        protected void AddSelect(Expression<Func<T, TResult>> selectExpression)
-        {
-            Select = selectExpression;
-        }
+    protected void AddSelect(Expression<Func<T, TResult>> selectExpression)
+    {
+        Select = selectExpression;
     }
+}
